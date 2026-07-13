@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>World Cup 2026 Sweepstake</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --card2: #f0f3fa;
+    --line: #e2e7f0;
+    --text: #1a2233;
+    --muted: #6b7590;
+    --gold: #d69200;
+    --green: #1aa668;
+    --red: #e03e3e;
+    --accent: #2f6df0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #eaf0fc 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: .3px; }
+  h1 .ball { font-size: 24px; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin: 14px 0 18px;
+  }
+  .status { font-size: 12.5px; color: var(--muted); }
+  .status b { color: var(--text); font-weight: 600; }
+  button {
+    background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .55; cursor: default; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(26,34,51,.06); }
+  .card + .card { margin-top: 18px; }
+  .card h2 { font-size: 14px; margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--line); color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+
+  .row {
+    display: grid; grid-template-columns: 34px 1fr auto; align-items: center;
+    gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line);
+  }
+  .row:last-child { border-bottom: 0; }
+  .rank { font-size: 15px; font-weight: 700; color: var(--muted); text-align: center; }
+  .rank.top1 { color: var(--gold); }
+  .name { font-size: 16px; font-weight: 650; }
+  .teams { margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .team {
+    font-size: 12px; padding: 3px 9px; border-radius: 999px;
+    background: var(--card2); border: 1px solid var(--line); color: var(--text);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .team .pts { color: var(--gold); font-weight: 700; }
+  .team.out { color: var(--muted); text-decoration: line-through; opacity: .7; }
+  .team.live::before { content: "●"; color: var(--green); font-size: 9px; }
+  .pointsbig { font-size: 22px; font-weight: 800; text-align: right; min-width: 46px; }
+  .pointsbig span { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+  .eliminated .name { text-decoration: line-through; color: var(--muted); }
+  .eliminated .pointsbig { color: var(--muted); }
+  .tagout { font-size: 10px; color: var(--red); font-weight: 700; letter-spacing: .5px; margin-left: 8px; vertical-align: middle; }
+
+  .match { display: grid; grid-template-columns: 88px 1fr; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .match:last-child { border-bottom: 0; }
+  .match .rd { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .4px; align-self: center; }
+  .match .win { font-weight: 700; }
+  .match .sc { color: var(--gold); font-weight: 700; }
+  .match .note { color: var(--muted); font-size: 11px; }
+
+  .rules { padding: 12px 16px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+  .rules b { color: var(--text); }
+  .msg { padding: 18px 16px; font-size: 14px; }
+  .msg.err { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="ball">⚽</span> World Cup 2026 Sweepstake</h1>
+    <div class="sub">Office scoreboard — live results, refreshed every time you open this page</div>
+  </header>
+
+  <div class="bar">
+    <div class="status" id="status">Loading live results…</div>
+    <button id="refresh">↻ Refresh</button>
+  </div>
+
+  <div class="card">
+    <h2>Leaderboard</h2>
+    <div id="board"><div class="msg">Loading…</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Knockout results</h2>
+    <div id="results"><div class="msg">Loading…</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Scoring</h2>
+    <div class="rules">
+      A win in each knockout round is worth: <b>Round of 16 = 1pt</b> · <b>Quarter-final = 2pts</b> · <b>Semi-final = 4pts</b> · <b>Third-place play-off = 3pts</b> · <b>Final = 8pts</b>.<br>
+      Each player holds two teams. A team is struck through once it loses (knocked out). A player's name is struck through once <b>both</b> their teams are out.<br>
+      Winners are read from penalties → extra time → full time. Data auto-updates from the open-source
+      <b>openfootball</b> World Cup dataset — no login, no key.
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA_URL = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
+
+const ROUND_POINTS = { 'Round of 16': 1, 'Quarter-final': 2, 'Semi-final': 4, 'Match for third place': 3, 'Final': 8 };
+const KNOCKOUT_ROUNDS = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Match for third place', 'Final'];
+const ROUND_ORDER = { 'Round of 32': 0, 'Round of 16': 1, 'Quarter-final': 2, 'Semi-final': 3, 'Match for third place': 3.5, 'Final': 4 };
+const ROUND_SHORT = { 'Round of 32': 'R32', 'Round of 16': 'R16', 'Quarter-final': 'QF', 'Semi-final': 'SF', 'Match for third place': '3RD', 'Final': 'FINAL' };
+
+const PLAYERS = [
+  { name: 'Alys',   teams: ['Spain', 'Colombia'] },
+  { name: 'Angela', teams: ['Belgium', 'Norway'] },
+  { name: 'Ella',   teams: ['Brazil', 'Mexico'] },
+  { name: 'Gregg',  teams: ['Belgium', 'USA'] },
+  { name: 'Hayden', teams: ['England', 'Colombia'] },
+  { name: 'Kristi', teams: ['Argentina', 'Norway'] },
+  { name: 'Lydia',  teams: ['Portugal', 'Egypt'] },
+  { name: 'Nick',   teams: ['Portugal', 'Paraguay'] },
+  { name: 'Srii',   teams: ['England', 'Mexico'] },
+  { name: 'Steve',  teams: ['Morocco', 'Egypt'] },
+  { name: 'Titus',  teams: ['France', 'Switzerland'] },
+];
+
+// Pick the decisive score: penalties beat extra-time beat full-time.
+function decisive(score) {
+  if (!score) return null;
+  if (Array.isArray(score.p)) return score.p;
+  if (Array.isArray(score.et)) return score.et;
+  if (Array.isArray(score.ft)) return score.ft;
+  return null;
+}
+function winnerOf(m) {
+  const s = decisive(m.score);
+  if (!s) return null;
+  if (s[0] > s[1]) return m.team1;
+  if (s[1] > s[0]) return m.team2;
+  return null; // undecided / no result yet
+}
+
+function analyze(matches) {
+  const stats = {}; // team -> { points, eliminated }
+  const ensure = t => (stats[t] = stats[t] || { points: 0, eliminated: false });
+  const knockouts = (matches || []).filter(m => KNOCKOUT_ROUNDS.includes(m.round));
+  const completed = [];
+
+  for (const m of knockouts) {
+    const w = winnerOf(m);
+    if (!w) continue; // not played yet
+    ensure(m.team1); ensure(m.team2);
+    const loser = (w === m.team1) ? m.team2 : m.team1;
+    stats[loser].eliminated = true;
+    const pts = ROUND_POINTS[m.round] || 0;
+    if (pts > 0) stats[w].points += pts;
+    completed.push(m);
+  }
+
+  completed.sort((a, b) => (ROUND_ORDER[a.round] - ROUND_ORDER[b.round]) || ((a.num || 0) - (b.num || 0)));
+  return { stats, completed };
+}
+
+const teamState = (stats, t) => stats[t] || { points: 0, eliminated: false };
+
+function renderBoard(stats) {
+  const rows = PLAYERS.map(p => {
+    const t = p.teams.map(name => ({ name, ...teamState(stats, name) }));
+    const points = t.reduce((s, x) => s + x.points, 0);
+    const eliminated = t.every(x => x.eliminated);
+    return { ...p, t, points, eliminated };
+  });
+
+  rows.sort((a, b) =>
+    (b.points - a.points) ||
+    (a.eliminated - b.eliminated) ||
+    a.name.localeCompare(b.name)
+  );
+
+  // Shared ranks for ties (eliminated players are not ranked with a trophy position spread).
+  let lastKey = null, lastRank = 0;
+  rows.forEach((r, i) => {
+    const key = r.points + '|' + r.eliminated;
+    if (key !== lastKey) { lastRank = i + 1; lastKey = key; }
+    r.rank = lastRank;
+  });
+
+  const board = document.getElementById('board');
+  board.innerHTML = rows.map(r => {
+    const teams = r.t.map(x => {
+      const cls = x.eliminated ? 'team out' : (x.points > 0 || !x.eliminated ? 'team live' : 'team');
+      const pts = x.points > 0 ? ` <span class="pts">+${x.points}</span>` : '';
+      return `<span class="${cls}">${x.name}${pts}</span>`;
+    }).join('');
+    const outTag = r.eliminated ? '<span class="tagout">OUT</span>' : '';
+    return `
+      <div class="row ${r.eliminated ? 'eliminated' : ''}">
+        <div class="rank ${r.rank === 1 && !r.eliminated ? 'top1' : ''}">${r.rank === 1 && !r.eliminated ? '🏆' : r.rank}</div>
+        <div>
+          <div class="name">${r.name}${outTag}</div>
+          <div class="teams">${teams}</div>
+        </div>
+        <div class="pointsbig">${r.points}<span> pt${r.points === 1 ? '' : 's'}</span></div>
+      </div>`;
+  }).join('');
+}
+
+function renderResults(completed) {
+  const el = document.getElementById('results');
+  if (!completed.length) {
+    el.innerHTML = '<div class="msg">No knockout matches finished yet.</div>';
+    return;
+  }
+  el.innerHTML = completed.map(m => {
+    const w = winnerOf(m);
+    const ft = m.score.ft || decisive(m.score);
+    const pens = Array.isArray(m.score.p) ? ` <span class="note">(pens ${m.score.p[0]}–${m.score.p[1]})</span>` : '';
+    const aet = Array.isArray(m.score.et) && !Array.isArray(m.score.p) ? ' <span class="note">(a.e.t.)</span>' : '';
+    const t1 = `<span class="${w === m.team1 ? 'win' : ''}">${m.team1}</span>`;
+    const t2 = `<span class="${w === m.team2 ? 'win' : ''}">${m.team2}</span>`;
+    return `
+      <div class="match">
+        <div class="rd">${ROUND_SHORT[m.round] || m.round}</div>
+        <div>${t1} <span class="sc">${ft[0]}–${ft[1]}</span> ${t2}${pens}${aet}</div>
+      </div>`;
+  }).join('');
+}
+
+async function load() {
+  const btn = document.getElementById('refresh');
+  const status = document.getElementById('status');
+  btn.disabled = true;
+  status.textContent = 'Fetching live results…';
+  try {
+    // Cache-buster + no-store so every open pulls the freshest data.
+    const res = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const { stats, completed } = analyze(data.matches || []);
+    renderBoard(stats);
+    renderResults(completed);
+    const now = new Date();
+    status.innerHTML = `<b>${completed.length}</b> knockout match${completed.length === 1 ? '' : 'es'} played · updated ${now.toLocaleString()}`;
+  } catch (err) {
+    document.getElementById('board').innerHTML =
+      `<div class="msg err">Couldn't load live results (${err.message}). Check your internet connection and hit Refresh.</div>`;
+    document.getElementById('results').innerHTML = '';
+    status.textContent = 'Offline — no data loaded.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('refresh').addEventListener('click', load);
+load();
+</script>
+</body>
+</html>
